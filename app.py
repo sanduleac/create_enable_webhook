@@ -47,23 +47,19 @@ def enable_smartsheet_webhook(api_token, webhook_id):
 def webhook():
     if 'Smartsheet-Hook-Challenge' in request.headers:
         challenge = request.headers['Smartsheet-Hook-Challenge']
-        return jsonify({'smartsheetHookResponse': challenge}), 200, {'Smartsheet-Hook-Response': challenge}
+        return '', 200, {'Smartsheet-Hook-Response': challenge}
     
     event_data = request.json
     print("Webhook event received:", event_data)
     
     return '', 200
 
-@app.route('/create_and_enable_webhook', methods=['POST'])
-def create_and_enable_webhook():
+@app.route('/create_webhook', methods=['POST'])
+def create_webhook():
     try:
-        # Step 1: Create the webhook
         webhook_response = create_smartsheet_webhook(config.SMARTSHEET_API_TOKEN, config.SHEET_ID, config.WEBHOOK_CALLBACK_URL)
         webhook_id = webhook_response['id']
-        
-        # Step 2: Enable the webhook and wait for the verification process
         enable_response = enable_smartsheet_webhook(config.SMARTSHEET_API_TOKEN, webhook_id)
-        
         return jsonify(enable_response)
     except Exception as e:
         return str(e), 500
